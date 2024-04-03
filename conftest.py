@@ -5,18 +5,20 @@ import pytest
 files = ["Python Notes.pdf", "example.xlsx", "example3.csv"]
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def archive_creation():
     files_list = ["Python Notes.pdf", "example.xlsx", "example3.csv"]
     if not os.path.exists("resource"):
         os.mkdir("resource")
-    if not os.path.exists("resource/archive.zip"):
         with zipfile.ZipFile("resource/archive.zip", "a") as arch:
             os.chdir("temp")
             for file in files_list:
                 arch.write(file)
+    os.chdir("resource")
 
     yield
 
-    os.remove("resource/archive.zip")
-    os.rmdir("resource")
+    if os.path.exists("resource/archive.zip"):
+        os.remove("resource/archive.zip")
+    if os.path.exists("resource"):
+        os.rmdir("resource")
